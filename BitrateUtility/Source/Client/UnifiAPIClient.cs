@@ -1,8 +1,9 @@
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text.Json.Nodes;
+using BitrateUtility.Source.Configuration;
 
-namespace BitrateUtility;
+namespace BitrateUtility.Source.Client;
 
 /// <summary>
 /// A client that handles all communication with the UniFi Controller
@@ -10,11 +11,23 @@ namespace BitrateUtility;
 /// </summary>
 public class UnifiAPIClient
 {
-    private static readonly string ApplicationInfoEndpoint = "proxy/network/integrations/v1/info";
-    private static readonly string SitesEndpoint = "proxy/network/integrations/v1/sites";
-    private static readonly string StatisticsEndpoint = "proxy/network/integrations/v1/sites/{siteId}/devices/{deviceId}/statistics/latest";
+    private static class Endpoints
+    {
+        public static readonly string ApplicationInfo = "proxy/network/integrations/v1/info";
+        public static readonly string Sites = "proxy/network/integrations/v1/sites";
+        private static readonly string statistics = "proxy/network/integrations/v1/sites/{siteID}/devices/{deviceID}/statistics/latest";
+        
+        public static string Statistics(string siteID, string deviceID)
+        {
+            string statisticsEndpoint = statistics
+                .Replace("{siteID}", siteID)
+                .Replace("{deviceID}", deviceID);
 
-    private readonly HttpClient    httpClient;
+            return statisticsEndpoint;
+        }
+    }
+
+    private readonly HttpClient httpClient;
 
     public UnifiAPIClient(HttpClient httpClient)
     {
@@ -22,13 +35,13 @@ public class UnifiAPIClient
         
         this.httpClient.DefaultRequestHeaders.Accept.Clear();
         this.httpClient.DefaultRequestHeaders.Accept.Add(item: new MediaTypeWithQualityHeaderValue(mediaType: MediaTypeNames.Application.Json));
-        this.httpClient.DefaultRequestHeaders.Add(name: "X-API-KEY", value: Configuration.APIKey);
+        this.httpClient.DefaultRequestHeaders.Add(name: Constants.APIKeyHeaderKey, value: Configuration.Configuration.APIKey);
     }
 
 
     public async Task<JsonNode?> RetrieveApplicationInfo()
     {
-        var applicationInfoURL = $"{Configuration.GatewayURL}/{ApplicationInfoEndpoint}";
+        var applicationInfoURL = new Uri($"{Configuration.Configuration.GatewayURL}/{Endpoints.ApplicationInfo}");
 
         HttpResponseMessage response = await httpClient.GetAsync(requestUri: applicationInfoURL);
         if (!response.IsSuccessStatusCode)
@@ -42,7 +55,7 @@ public class UnifiAPIClient
     
     public async Task<JsonNode?> RetrieveSites()
     {
-        var applicationInfoURL = $"{Configuration.GatewayURL}/{SitesEndpoint}";
+        var applicationInfoURL = new Uri($"{Configuration.Configuration.GatewayURL}/{Endpoints.Sites}");
 
         HttpResponseMessage response = await httpClient.GetAsync(requestUri: applicationInfoURL);
         if (!response.IsSuccessStatusCode)
@@ -56,7 +69,7 @@ public class UnifiAPIClient
     
     public async Task<JsonNode?> RetrieveStatistics()
     {
-        var applicationInfoURL = $"{Configuration.GatewayURL}/{StatisticsEndpoint}";
+        var applicationInfoURL = new Uri($"{Configuration.Configuration.GatewayURL}/{Endpoints.Statistics("", "")}");
 
         HttpResponseMessage response = await httpClient.GetAsync(requestUri: applicationInfoURL);
         

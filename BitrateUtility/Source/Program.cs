@@ -1,4 +1,8 @@
-﻿namespace BitrateUtility;
+﻿using BitrateUtility.Source.Client;
+using BitrateUtility.Source.Client.Utility;
+using BitrateUtility.Source.Service;
+
+namespace BitrateUtility.Source;
 
 class Program
 {

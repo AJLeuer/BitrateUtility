@@ -1,7 +1,7 @@
-using System.Net;
 using System.Text.Json;
+using BitrateUtility.Source.Client;
 
-namespace BitrateUtility;
+namespace BitrateUtility.Source.Service;
 
 public class UniFiTrafficMonitor
 {
@@ -11,11 +11,7 @@ public class UniFiTrafficMonitor
     {
         this.unifiClient  = unifiClient;
     }
-
-    /// <summary>
-    /// One-shot method: logs into UniFi, grabs Netflix byte counts twice,
-    /// waits the configured interval between counts, then prints an approximate bitrate.
-    /// </summary>
+    
     public async Task RunAsync()
     {
         Console.WriteLine(value: "Checking connection to UniFi...");

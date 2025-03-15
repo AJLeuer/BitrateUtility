@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace BitrateUtility;
+namespace BitrateUtility.Source.Configuration;
 
 public static class Configuration
 {
