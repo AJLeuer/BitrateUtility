@@ -1,26 +1,11 @@
-﻿using BitrateUtility.Source.Client;
-using BitrateUtility.Source.Client.Utility;
-using BitrateUtility.Source.Service;
+﻿namespace BitrateUtility.Source;
 
-namespace BitrateUtility.Source;
-
-class Program
+static class Program
 {
+    private static UniFiTrafficMonitorApplication UniFiTrafficMonitorApplication { get; } = new();
+    
     public static async Task Main()
     {
-        HttpClientHandler httpHandler = new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = (_, _, _, _) => true
-        };
-
-        var loggingHandler = new LoggingHandler(innerHandler: httpHandler);
-        
-        var httpClient = new HttpClient(handler: loggingHandler);
-
-        var unifiClient = new UnifiAPIClient(httpClient: httpClient);
-
-        var monitor = new UniFiTrafficMonitor(unifiClient: unifiClient);
-
-        await monitor.RunAsync();
+        await UniFiTrafficMonitorApplication.Run();
     }
 }

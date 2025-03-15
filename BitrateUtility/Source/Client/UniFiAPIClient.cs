@@ -9,7 +9,7 @@ namespace BitrateUtility.Source.Client;
 /// A client that handles all communication with the UniFi Controller
 /// (logging in, fetching DPI stats, etc.).
 /// </summary>
-public class UnifiAPIClient
+public class UniFiAPIClient
 {
     private static class Endpoints
     {
@@ -29,19 +29,17 @@ public class UnifiAPIClient
 
     private readonly HttpClient httpClient;
 
-    public UnifiAPIClient(HttpClient httpClient)
+    public UniFiAPIClient(HttpClient httpClient)
     {
         this.httpClient = httpClient;
-        
         this.httpClient.DefaultRequestHeaders.Accept.Clear();
         this.httpClient.DefaultRequestHeaders.Accept.Add(item: new MediaTypeWithQualityHeaderValue(mediaType: MediaTypeNames.Application.Json));
-        this.httpClient.DefaultRequestHeaders.Add(name: Constants.APIKeyHeaderKey, value: Configuration.Configuration.APIKey);
+        this.httpClient.DefaultRequestHeaders.Add(name: Constants.APIKeyHeaderKey, value: Configuration.DomainConfiguration.APIKey);
     }
-
-
+    
     public async Task<JsonNode?> RetrieveApplicationInfo()
     {
-        var applicationInfoURL = new Uri($"{Configuration.Configuration.GatewayURL}/{Endpoints.ApplicationInfo}");
+        var applicationInfoURL = new Uri($"{Configuration.DomainConfiguration.GatewayURL}/{Endpoints.ApplicationInfo}");
 
         HttpResponseMessage response = await httpClient.GetAsync(requestUri: applicationInfoURL);
         if (!response.IsSuccessStatusCode)
@@ -55,7 +53,7 @@ public class UnifiAPIClient
     
     public async Task<JsonNode?> RetrieveSites()
     {
-        var applicationInfoURL = new Uri($"{Configuration.Configuration.GatewayURL}/{Endpoints.Sites}");
+        var applicationInfoURL = new Uri($"{Configuration.DomainConfiguration.GatewayURL}/{Endpoints.Sites}");
 
         HttpResponseMessage response = await httpClient.GetAsync(requestUri: applicationInfoURL);
         if (!response.IsSuccessStatusCode)
@@ -69,7 +67,7 @@ public class UnifiAPIClient
     
     public async Task<JsonNode?> RetrieveStatistics()
     {
-        var applicationInfoURL = new Uri($"{Configuration.Configuration.GatewayURL}/{Endpoints.Statistics("", "")}");
+        var applicationInfoURL = new Uri($"{Configuration.DomainConfiguration.GatewayURL}/{Endpoints.Statistics("", "")}");
 
         HttpResponseMessage response = await httpClient.GetAsync(requestUri: applicationInfoURL);
         

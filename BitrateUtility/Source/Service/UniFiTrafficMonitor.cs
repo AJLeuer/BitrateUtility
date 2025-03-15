@@ -1,29 +1,26 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using BitrateUtility.Source.Client;
+using static BitrateUtility.Source.Configuration.ApplicationConfiguration;
 
 namespace BitrateUtility.Source.Service;
 
 public class UniFiTrafficMonitor
 {
-    private readonly UnifiAPIClient unifiClient;
+    private readonly UniFiAPIClient uniFiClient;
 
-    public UniFiTrafficMonitor(UnifiAPIClient unifiClient)
+    public UniFiTrafficMonitor(UniFiAPIClient uniFiClient)
     {
-        this.unifiClient  = unifiClient;
+        this.uniFiClient  = uniFiClient;
     }
     
-    public async Task RunAsync()
+    public async Task Run()
     {
         Console.WriteLine(value: "Checking connection to UniFi...");
-        var info = await unifiClient.RetrieveApplicationInfo();
-        var sites = await unifiClient.RetrieveSites();
+        JsonNode? info = await uniFiClient.RetrieveApplicationInfo();
+        JsonNode? sites = await uniFiClient.RetrieveSites();
         
-        JsonSerializerOptions options = new JsonSerializerOptions
-        {
-            WriteIndented = true
-        };
-        
-        Console.WriteLine(value: JsonSerializer.Serialize(info, options));
-        Console.WriteLine(value: JsonSerializer.Serialize(sites, options));
+        Console.WriteLine(value: JsonSerializer.Serialize(info, DefaultJSONSerializerOptions));
+        Console.WriteLine(value: JsonSerializer.Serialize(sites, DefaultJSONSerializerOptions));
     }
 }
