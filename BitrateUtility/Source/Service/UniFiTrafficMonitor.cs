@@ -22,6 +22,7 @@ public class UniFiTrafficMonitor
         Sites? sites = await uniFiClient.RetrieveSites();
         DeviceList? devices = null;
         Device? device = null;
+        Statistics? statistics = null;
         
         if (sites?.data[0].id is { } siteID)
         {
@@ -29,6 +30,7 @@ public class UniFiTrafficMonitor
             if (devices?.data[0].id is { } deviceID)
             {
                 device = await uniFiClient.RetrieveDevice(siteID: siteID, deviceID: deviceID);
+                statistics = await uniFiClient.RetrieveStatistics(siteID: siteID, deviceID: deviceID);
             }
         }
         
@@ -50,6 +52,11 @@ public class UniFiTrafficMonitor
         
         Console.WriteLine(value: "Primary device info:");
         Console.WriteLine(value: JsonSerializer.Serialize(device, DefaultJSONSerializerOptions));
+        Console.WriteLine();
+        Console.WriteLine();
+        
+        Console.WriteLine(value: "Primary device statistics info:");
+        Console.WriteLine(value: JsonSerializer.Serialize(statistics, DefaultJSONSerializerOptions));
         Console.WriteLine();
         Console.WriteLine();
     }

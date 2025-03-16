@@ -59,7 +59,7 @@ public class UniFiAPIClient
         this.httpClient = httpClient;
         this.httpClient.DefaultRequestHeaders.Accept.Clear();
         this.httpClient.DefaultRequestHeaders.Accept.Add(item: new MediaTypeWithQualityHeaderValue(mediaType: MediaTypeNames.Application.Json));
-        this.httpClient.DefaultRequestHeaders.Add(name: Constants.Constants.APIKeyHeaderKey, value: DomainConfiguration.APIKey);
+        this.httpClient.DefaultRequestHeaders.Add(name: APIKeyHeaderKey, value: DomainConfiguration.APIKey);
     }
     
     public async Task<JsonNode?> RetrieveApplicationInfo()
@@ -111,7 +111,20 @@ public class UniFiAPIClient
         {
             throw new Exception($"Failed to connect to UniFi. Status: {response.StatusCode}");
         }
-    
+
         return await JsonSerializer.DeserializeAsync<Device>(utf8Json: await response.Content.ReadAsStreamAsync());
+    }
+    
+    public async Task<Statistics?> RetrieveStatistics(Guid siteID, Guid deviceID)
+    {
+        var statisticsURL = new Uri(baseUri: DomainConfiguration.GatewayURL, relativeUri: Endpoints.Statistics(siteID: siteID, deviceID: deviceID));
+        
+        HttpResponseMessage response = await httpClient.GetAsync(requestUri: statisticsURL);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Failed to connect to UniFi. Status: {response.StatusCode}");
+        }
+    
+        return await JsonSerializer.DeserializeAsync<Statistics>(utf8Json: await response.Content.ReadAsStreamAsync());
     }
 }
