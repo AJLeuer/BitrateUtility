@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using BitrateUtility.Source.Configuration;
 using BitrateUtility.Source.Model;
+using static BitrateUtility.Source.Constants.Constants;
+using URITemplate = UriTemplate.Core.UriTemplate;
 
 namespace BitrateUtility.Source.Client;
 
@@ -18,22 +20,35 @@ public class UniFiAPIClient
         private const string Prefix = "proxy/network/integrations";
         public static readonly Uri ApplicationInfo = new ($"{Prefix}/v1/info", UriKind.Relative);
         public static readonly Uri Sites = new ($"{Prefix}/v1/sites", UriKind.Relative);
-        private static readonly string devices = $"{Prefix}/v1/sites/{{siteID}}/devices";
-        private static readonly string statistics = $"{Prefix}/v1/sites/{{siteID}}/devices/{{deviceID}}/statistics/latest";
+        private static readonly URITemplate devices = new ($"{Prefix}/v1/sites/{{{SiteID}}}/devices");
+        private static readonly URITemplate device = new ($"{Prefix}/v1/sites/{{{SiteID}}}/devices/{{{DeviceID}}}");
+        private static readonly URITemplate statistics = new ($"{Prefix}/v1/sites/{{{SiteID}}}/devices/{{{DeviceID}}}/statistics/latest");
         
         public static Uri Devices(Guid siteID)
         {
-            string statisticsEndpoint = devices.Replace("{siteID}", siteID.ToString());
-            return new Uri(statisticsEndpoint, UriKind.Relative);
+            return devices.BindByName(new Dictionary<string, string> { [SiteID] = siteID.ToString() });
+        }
+        
+        public static Uri Device(Guid siteID, Guid deviceID)
+        {
+            var replacements = new Dictionary<string, string>
+            {
+                [SiteID] = siteID.ToString(),
+                [DeviceID] = deviceID.ToString()
+            };
+
+            return device.BindByName(replacements);
         }
         
         public static Uri Statistics(Guid siteID, Guid deviceID)
         {
-            string statisticsEndpoint = statistics
-                .Replace("{siteID}", siteID.ToString())
-                .Replace("{deviceID}", deviceID.ToString());
+            var replacements = new Dictionary<string, string>
+            {
+                [SiteID] = siteID.ToString(),
+                [DeviceID] = deviceID.ToString()
+            };
 
-            return new Uri(statisticsEndpoint, UriKind.Relative);
+            return statistics.BindByName(replacements);
         }
     }
 
@@ -44,7 +59,7 @@ public class UniFiAPIClient
         this.httpClient = httpClient;
         this.httpClient.DefaultRequestHeaders.Accept.Clear();
         this.httpClient.DefaultRequestHeaders.Accept.Add(item: new MediaTypeWithQualityHeaderValue(mediaType: MediaTypeNames.Application.Json));
-        this.httpClient.DefaultRequestHeaders.Add(name: Constants.APIKeyHeaderKey, value: DomainConfiguration.APIKey);
+        this.httpClient.DefaultRequestHeaders.Add(name: Constants.Constants.APIKeyHeaderKey, value: DomainConfiguration.APIKey);
     }
     
     public async Task<JsonNode?> RetrieveApplicationInfo()
@@ -74,7 +89,7 @@ public class UniFiAPIClient
         return await JsonSerializer.DeserializeAsync<Sites>(utf8Json: await response.Content.ReadAsStreamAsync());
     }
     
-    public async Task<Devices?> RetrieveDevices(Guid siteID)
+    public async Task<DeviceList?> RetrieveDevices(Guid siteID)
     {
         var devicesURL = new Uri(baseUri: DomainConfiguration.GatewayURL, relativeUri: Endpoints.Devices(siteID: siteID));
         
@@ -84,6 +99,19 @@ public class UniFiAPIClient
             throw new Exception($"Failed to connect to UniFi. Status: {response.StatusCode}");
         }
 
-        return await JsonSerializer.DeserializeAsync<Devices>(utf8Json: await response.Content.ReadAsStreamAsync());
+        return await JsonSerializer.DeserializeAsync<DeviceList>(utf8Json: await response.Content.ReadAsStreamAsync());
+    }
+    
+    public async Task<Device?> RetrieveDevice(Guid siteID, Guid deviceID)
+    {
+        var deviceURL = new Uri(baseUri: DomainConfiguration.GatewayURL, relativeUri: Endpoints.Device(siteID: siteID, deviceID: deviceID));
+        
+        HttpResponseMessage response = await httpClient.GetAsync(requestUri: deviceURL);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Failed to connect to UniFi. Status: {response.StatusCode}");
+        }
+    
+        return await JsonSerializer.DeserializeAsync<Device>(utf8Json: await response.Content.ReadAsStreamAsync());
     }
 }

@@ -14,7 +14,7 @@ public static class DomainConfiguration
             .AddUserSecrets(Assembly.GetExecutingAssembly())
             .Build();
 
-        string? uniFiAPIKey = configuration[Constants.UniFiAPIKeySecretKey];
+        string? uniFiAPIKey = configuration[Constants.Constants.UniFiAPIKeySecretKey];
         APIKey = uniFiAPIKey!;
     }
 }

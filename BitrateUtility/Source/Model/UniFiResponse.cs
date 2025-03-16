@@ -4,7 +4,9 @@ using System.Text.Json.Serialization;
 
 namespace BitrateUtility.Source.Model;
 
-[SuppressMessage("ReSharper", "InconsistentNaming"), SuppressMessage("ReSharper", "UnusedMember.Global"), SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
+[SuppressMessage("ReSharper", "InconsistentNaming"), 
+ SuppressMessage("ReSharper", "UnusedMember.Global"), 
+ SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
 public class UniFiResponse
 {
     public int offset { get; set; } 
@@ -17,7 +19,9 @@ public class UniFiResponse
     public Dictionary<string, JsonElement> AdditionalData { get; set; } = new();
 }
 
-[SuppressMessage("ReSharper", "InconsistentNaming"), SuppressMessage("ReSharper", "UnusedMember.Global"), SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+[SuppressMessage("ReSharper", "InconsistentNaming"), 
+ SuppressMessage("ReSharper", "UnusedMember.Global"), 
+ SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public record Data
 {
     public required Guid id { get; set; }
